@@ -312,13 +312,13 @@ Añadimos el siguiente fichero (_testenvironments.json_) en la carpeta _root_ de
 
 ```json
 {
-    "version": "1",
-    "environments": [
-        {
-            "name": "Ubuntu",
-            "type": "wsl",
-            "wslDistribution": "Ubuntu"
-        }
-    ]
+  "version": "1",
+  "environments": [
+    {
+      "name": "Ubuntu",
+      "type": "wsl",
+      "wslDistribution": "Ubuntu"
+    }
+  ]
 }
 ```
