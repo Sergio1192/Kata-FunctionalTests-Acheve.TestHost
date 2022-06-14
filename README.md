@@ -112,12 +112,12 @@ public class WeatherForecastTests
 }
 ```
 
-### Paso 5.3: Creamos una _Claim_ para usar en los tests
+### Paso 5.3: Creamos unas _Claim_ para usar en los tests
 
 ```csharp
 internal static class Claims
 {
-    public static readonly IEnumerable<Claim> User = new[]
+    public static readonly IEnumerable<Claim> UserWithPolicy = new[]
     {
         new Claim(
             type: ClaimTypes.NameIdentifier,
@@ -125,7 +125,18 @@ internal static class Claims
             valueType: ClaimValueTypes.Integer32,
             issuer: "TestIssuer",
             originalIssuer: "OriginalTestIssuer"),
-        new Claim(type: ClaimTypes.Name, value: "User"),
+        new Claim(type: ClaimTypes.Name, value: "User")
+    };
+
+    public static readonly IEnumerable<Claim> User = new[]
+    {
+        new Claim(
+            type: ClaimTypes.NameIdentifier,
+            value: "2",
+            valueType: ClaimValueTypes.Integer32,
+            issuer: "TestIssuer2",
+            originalIssuer: "OriginalTestIssuer2"),
+        new Claim(type: ClaimTypes.Name, value: "User2")
     };
 }
 ```
@@ -171,6 +182,26 @@ public async Task Get_weather_return_5_elements()
 ### Paso 6.3: Test _Get_ con _Policy_
 
 ```csharp
+[Fact]
+public async Task Get_weather_with_policy_user_return_Ok()
+{
+    var response = await _fixture.Server.CreateHttpApiRequest<WeatherForecastController>(controller => controller.PolicyGet())
+        .WithIdentity(Claims.UserWithPolicy)
+        .GetAsync();
+
+    await response.IsSuccessStatusCodeOrThrow();
+    response.IsSuccessStatusCode.Should().BeTrue();
+}
+
+[Fact]
+public async Task Get_policy_weather_without_policy_user_return_Forbidden()
+{
+    var response = await _fixture.Server.CreateHttpApiRequest<WeatherForecastController>(controller => controller.PolicyGet())
+        .WithIdentity(Claims.User)
+        .GetAsync();
+    
+    response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+}
 ```
 
 ### Paso 6.4: Test _Get_ con parámetros
@@ -193,7 +224,28 @@ public async Task Get_weather_with_parameter_3_return_3_elements()
 }
 ```
 
-### Paso 6.5: Test _Post_
+### Paso 6.5: Test _Get_ con parámetros extra
+
+```csharp
+[Fact]
+public async Task Get_weather_with_hidden_parameter_3_return_3_elements()
+{
+    const int N = 3;
+
+    var response = await _fixture.Server.CreateHttpApiRequest<WeatherForecastController>(controller => controller.HiddenParametersGet())
+        .AddQueryParameter("num", N)
+        .WithIdentity(Claims.User)
+        .GetAsync();
+    
+    await response.IsSuccessStatusCodeOrThrow();
+
+    var result = await response.ReadContentAsAsync<IEnumerable<WeatherForecast>>();
+
+    result.Should().HaveCount(N);
+}
+```
+
+### Paso 6.6: Test _Post_
 
 ```csharp
 [Fact]
@@ -218,7 +270,7 @@ public async Task Post_weather_return_same_model()
 }
 ```
 
-### Paso 6.6: Test _Patch_
+### Paso 6.7: Test _Patch_
 
 ```csharp
 [Fact]
@@ -257,7 +309,7 @@ public async Task Patch_weather_return_NotFound()
 }
 ```
 
-### Paso 6.7 Test _Delete_
+### Paso 6.8: Test _Delete_
 
 ```csharp
 [Fact]
@@ -274,9 +326,20 @@ public async Task Delete_weather_return_true()
 }
 ```
 
-### Paso 6.7 Test _Exception_
+### Paso 6.9: Test _Exception_
 
 ```csharp
+[Fact]
+public async Task Get_exception_return_specific_excepction_and_message()
+{
+    var action = () => _fixture.Server.CreateHttpApiRequest<WeatherForecastController>(controller => controller.GetException())
+        .WithIdentity(Claims.User)
+        .GetAsync();
+
+    await action.Should()
+        .ThrowAsync<NotImplementedException>()
+        .WithMessage(WeatherForecastController.EXCEPTION_MSG);
+}
 ```
 
 ## Paso 7 (Opcional): Lanzando tests en WSL (Windows Subsytem for Linux)

@@ -9,6 +9,8 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 public class WeatherForecastController : ControllerBase
 {
+    public const string EXCEPTION_MSG = "This is my exception";
+
     private static readonly string[] Summaries = new[]
     {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -33,11 +35,26 @@ public class WeatherForecastController : ControllerBase
         return GetWeatherForecast(num);
     }
 
+    [HttpGet(nameof(HiddenParametersGet))]
+    public ActionResult<IEnumerable<WeatherForecast>> HiddenParametersGet()
+    {
+        if (HttpContext.Request.Query.TryGetValue("num", out var value) && int.TryParse(value.First(), out var num))
+            return Ok(GetWeatherForecast(num));
+        else
+            return BadRequest();
+    }
+
     [Authorize("ValidateClaims")]
     [HttpGet(nameof(PolicyGet))]
     public IEnumerable<WeatherForecast> PolicyGet()
     {
         return GetWeatherForecast(10);
+    }
+
+    [HttpGet(nameof(GetException))]
+    public IActionResult GetException()
+    {
+        throw new NotImplementedException(EXCEPTION_MSG);
     }
 
     [HttpPost]
