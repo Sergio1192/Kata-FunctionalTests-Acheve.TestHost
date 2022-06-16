@@ -28,7 +28,6 @@ public class WeatherForecastTests
     public async Task Get_weather_public_return_10_elements()
     {
         var response = await _fixture.Server.CreateHttpApiRequest<WeatherForecastController>(controller => controller.PublicGet())
-            .WithIdentity(Claims.User)
             .GetAsync();
 
         await response.IsSuccessStatusCodeOrThrow();
