@@ -9,8 +9,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddApiServices();
 
-builder.Services.AddControllers()
-    .AddApplicationPart(Assembly.Load(new AssemblyName(nameof(Api))));
+builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 

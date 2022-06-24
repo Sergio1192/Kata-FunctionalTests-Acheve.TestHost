@@ -2,7 +2,6 @@
 using Acheve.TestHost;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace FunctionalTests;
 
@@ -15,8 +14,7 @@ public class StartupTest
 
         services.AddApiServices();
 
-        services.AddControllers()
-            .AddApplicationPart(Assembly.Load(new AssemblyName(nameof(Api))));
+        services.AddControllers();
     }
 
     public void Configure(IApplicationBuilder app)

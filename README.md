@@ -10,9 +10,17 @@ Usaremos principalmente la documentación descrita en [el github de Acheve.TestH
 dotnet new xunit -f net6.0
 ```
 
-### Paso 1.2: Hacemos referencia a nuestro proyecto de _Api_
+### Paso 1.2: Cambiamos el _project SDK_ en el _.csproj_ del proyecto de tests
 
-### Paso 1.3: Añadimos el paquete nuget Acheve.TestHost
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  ...
+</Project>
+```
+
+### Paso 1.3: Hacemos referencia a nuestro proyecto de _Api_
+
+### Paso 1.4: Añadimos el paquete nuget **Acheve.TestHost**
 
 ## Paso 2: Creacion del fichero _Startup_ para test
 
@@ -25,8 +33,7 @@ public class StartupTest
     {
         services.AddApiServices();
 
-        services.AddControllers()
-            .AddApplicationPart(Assembly.Load(new AssemblyName(nameof(Api))));
+        services.AddControllers();
     }
 
     public void Configure(IApplicationBuilder app)
